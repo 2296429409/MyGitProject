@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--加载数据库连接属性文件-->
+    <context:property-placeholder location="classpath:druid.properties"/>
+      <!--创建数据源-->
+     <bean id="druidDs" class="com.alibaba.druid.pool.DruidDataSource">
+         <!--配置连接数据库属性-->
+         <property name="driverClassName" value="${db.driverClassName}"/>
+         <property name="url" value="${db.url}"/>
+         <property name="username" value="${db.username}"/>
+         <property name="password" value="${db.password}"/>
+     </bean>
+      <!--mybatis 核心对象  SqlSessionFactory-->
+      <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+          <property name="dataSource" ref="druidDs"/>
+          <!--加载mybaits主配置文件-->
+          <property name="configLocation" value="classpath:mybaits/mybatis-config.xml"/>
+       </bean>
+      <!--开启mapper接口包扫描-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--开启mapper扫描  扫描接口  生成代理对象-->
+        <property name="basePackage" value="com.hentai.mapper"/>
+    </bean>
+
+</beans>

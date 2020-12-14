@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+   	    http://www.springframework.org/schema/context/spring-context.xsd
+   	    http://www.springframework.org/schema/tx
+   	    http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+    <context:component-scan base-package="cn.smbms"/>
+
+    <!-- 整合MyBatis -->
+    <!-- 配置数据源 -->
+    <context:property-placeholder location="classpath:druid.properties"/>
+    <bean id="druidDs" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${db.driverClassName}"/>
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
+    <!-- spring 整合 sqlSessionFatory -->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="druidDs"/>
+        <!-- 加载MyBatis配置文件 -->
+        <property name="configLocation" value="classpath:MyBatisConfig.xml"/>
+    </bean>
+
+
+    <!-- 配置自定义参数转化器 -->
+    <!--<bean id="formattingConversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">-->
+        <!--<property name="converters">-->
+            <!--<bean class="com.wuzaiyuan.converter.MyConverter"> </bean>-->
+        <!--</property>-->
+    <!--</bean>-->
+
+    <!-- 配置处理器映射器和处理器适配器-->
+    <!--<mvc:annotation-driven conversion-service="formattingConversionService"/>-->
+    <mvc:annotation-driven/>
+    <!-- 配置视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="suffix" value=".jsp"/>
+        <property name="prefix" value="/jsp/"/>
+    </bean>
+
+    <!-- 开启mapper接口包扫描  注入mapper代理对象-->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.smbms.mapper"/>
+    </bean>
+
+    <!-- 开启spring对事务的支持 -->
+    <!-- 配置平台事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="druidDs"/>
+    </bean>
+
+    <!--管理事务的属性-->
+    <tx:advice id="myTx" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!-- 查询方法事务 -->
+            <tx:method name="find*" read-only="true" propagation="SUPPORTS"/>
+            <tx:method name="get*" read-only="true" propagation="SUPPORTS"/>
+            <tx:method name="query*" read-only="true" propagation="SUPPORTS"/>
+            <!-- 其余都是增删改 -->
+            <tx:method name="*" read-only="false" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置切面 切入事务 -->
+    <aop:config>
+        <!-- 配置自定义的切面 -->
+        <aop:pointcut id="pt1" expression="execution(* com..service.impl.*.* (..))"/>
+        <aop:advisor advice-ref="myTx" pointcut-ref="pt1"/>
+    </aop:config>
+
+    <!-- 开启注解事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+    <!-- SpringMVC对请求的静态资源使用原生的Servlet方式来处理 ： 不处理 -->
+    <!-- 如何分辨是不是静态资源？
+        会遍历DispatcherServlet内的所有Controller处理器的 url 如果找不到，就把他当做静态资源
+    -->
+    <!--<mvc:default-servlet-handler/>-->
+
+    <!-- 对静态资源放行 -->
+    <!-- location： 资源位置 , mapping:匹配规则 -->
+    <!--<mvc:resources location="/pages/" mapping="/pages/**" />-->
+
+
+
+    <!-- 配置拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 拦截路径 -->
+            <mvc:mapping path="/**"/>
+            <!-- 指定使用哪个拦截器 -->
+            <bean class="cn.smbms.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--配置文件-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize">
+            <value>5242880</value>
+        </property>
+    </bean>
+
+    <!--aop注解支持-->
+    <aop:aspectj-autoproxy/>
+
+</beans>

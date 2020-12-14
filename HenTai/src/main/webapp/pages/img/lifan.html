@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2019里番</title>
+</head>
+<body>
+<div id="div1">
+    <button><a href="test.html">返回首页</a></button>
+<!-- 	<br>
+	<input type="button" value="上一个" @click="shang" v-show="a"/>
+	<input type="button" value="下一个" @click="xia" v-show="b"/>
+	<br> -->
+
+	<table>
+    	<tr>
+			<td>
+				<input v-for="(item,index) in idata" type="button" :value="item" @click="getvideo(index)"/>
+			</td>
+			<td>
+				<video :src="'http://192.168.4.4:8088/imgserver/2019lifan/'+idata[thisV]" controls></video>
+				<!-- <video :src="'http://192.168.4.4:8088/imgserver/2019lifan/'+idata[thisV]"></video> -->
+				<!-- <video controls="" autoplay="" name="media"><source :src="'http://192.168.4.4:8088/imgserver/2019lifan/'+idata[thisV]" type="video/mp4"></video> -->
+			</td>
+		</tr>
+    </table>
+    
+</div>
+
+
+<script src="../js/axios.min.js"></script>
+<script src="../js/vue0.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el:"#div1",
+        data:{
+            thisV:1,
+            a:false,
+            b:true,
+            idata:[]
+        },
+        mounted:function(){
+            this.getarr()
+        },
+        methods:{
+            getarr: function() {
+                var a = this;
+                axios.post("http://192.168.4.4:8085/hentai/img/getvideoarr").then(function(response) {
+                    a.idata=response.data
+                })
+            },
+		
+			xia:function () {
+
+			},
+			
+			shang:function () {
+
+			},
+			getvideo:function(i){
+				this.thisV=i
+			}
+        }
+    })
+</script>
+<style type="text/css">
+	.imgcss{
+		width: 50%;
+	}
+</style>
+</body>
+</html>

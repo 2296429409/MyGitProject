@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>糊里糊涂</title>
+</head>
+<body>
+<div id="div1">
+	<div id="box2">
+	<button class="b1"><a href="lifan.html">看里番</a></button>
+
+	<button class="b1"><a href="avshow.html">av随机推荐</a></button>
+
+    <button class="b1"><a href="file.html">上传色图</a></button>
+
+	<button class="b1"><a href="http://192.168.4.4:8088/imgserver/av/ipx-176.mp4">看片测试</a></button>
+
+	</div>
+	<input class="b1" type="button" value="上一页" @click="shang" :disabled ="!a"/>
+	<input class="b1" type="button" value="下一页" @click="xia" :disabled="!b"/>
+	<br>
+
+	<table>
+    	<tr v-for="(item,index) in 5">
+			<td ><img :src="src[2*index]" :class="c1"><br><input type="button" value="查看原图" @click="loadBigImg(2*index)"/></td>
+			<td ><img :src="src[2*index+1]" :class="c1"><br> <input type="button" value="查看原图" @click="loadBigImg(2*index+1)"/></td>
+		</tr>
+    </table>
+    <!-- <input type="button" value="查看原图" @click="loadBigImg(2*index+1)"/> -->
+</div>
+
+
+<script src="../js/axios.min.js"></script>
+<script src="../js/vue0.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el:"#div1",
+        data:{
+            src:"",
+            iname:"",
+            indexs:1,
+            a:false,
+            b:true,
+            idata:"",
+            arrall:"",
+			c1:"imgcss",
+        },
+        mounted:function(){
+            this.getarr()
+        },
+        methods:{
+            getarr: function() {
+                var a = this;
+                axios.post("http://192.168.4.4:8085/hentai/img/getimgarr").then(function(response) {
+                    a.idata=response.data
+                    a.imgarr()
+                })
+            },
+			imgarr:function(){
+				this.src= new Array()
+				for (var i=0; i<this.idata.length-(this.indexs-1)*10; i++){
+					if (i==10){
+						break
+					}
+					this.src[i]="http://192.168.4.4:8088/imgserver/img/xup/"+this.idata[(this.indexs-1)*10+i]
+					// console.log(this.src[i])
+				}
+			},
+			xia:function () {
+				this.indexs++
+				this.getarr()
+				this.a=true
+				if (this.idata.length<this.indexs*10){
+					this.b=false
+				}
+			},
+			shang:function () {
+				this.indexs--
+				this.getarr()
+				this.b=true
+				if (this.indexs==1)
+					this.a=false
+			},
+			loadBigImg:function(i){
+				window.open("http://192.168.4.4:8088/imgserver/img/up/"+this.idata[(this.indexs-1)*10+i])
+			}
+        }
+    })
+</script>
+<style type="text/css">
+	#div1{
+		width: 100%;
+	}
+	.imgcss{
+		/* float: right */
+		width: 50%;
+/* 		position: absolute;
+		  left: 0px; */
+	}
+	.b1{
+		width: 20%;
+	}
+</style>
+</body>
+</html>

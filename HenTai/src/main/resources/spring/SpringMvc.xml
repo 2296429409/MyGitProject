@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+        <!--开启包扫描-->
+    <context:component-scan base-package="com.hentai.controller"/>
+    <!--配置处理器 映射器 处理器适配器-->
+<!--    <mvc:annotation-driven conversion-service="formattingConversionService"/>-->
+    <mvc:annotation-driven/>
+    <!--配置视图解析器-->
+    <bean id="internalResourceViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+<!--        <property name="prefix" value="/pages/"/>-->
+<!--        <property name="suffix" value=".jsp"/>-->
+    </bean>
+    <!--配置转换服务 FormattingConversionServiceFactoryBean-->
+<!--    <bean id="formattingConversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <bean class="com.icis.converter.DateConverter"></bean>
+        </property>
+    </bean>-->
+
+    <!--异常处理器-->
+<!--    <bean class="com.icis.exceptions.myexceptionHandler"/>-->
+    <!--文件上传解析器 id必须为:multipartResolver-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--上传大小限制-->
+        <property name="maxUploadSize" value="5242880"></property>
+        <!--缓存大小设置-->
+        <property name="maxInMemorySize" value="4096"></property>
+        <!-- 配置字符集编码 -->
+        <property name="defaultEncoding" value="UTF-8"></property>
+
+    </bean>
+
+    <mvc:resources mapping="/pages/**" location="/pages/"/>
+
+    <mvc:cors>
+        <mvc:mapping path="/**" allowed-origins="*" allow-credentials="true" max-age="1800" allowed-methods="GET,POST,OPTIONS"/>
+    </mvc:cors>
+</beans>

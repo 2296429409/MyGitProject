@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.mapper.ProviderMapper">
+    <!--查询所有供应商-->
+   <select id="queryAll" resultType="provider">
+         SELECT * FROM smbms_provider
+    </select>
+    <!--详细查询-单个-->
+    <select id="getProviderById" parameterType="int" resultType="provider">
+        SELECT * FROM smbms_provider WHERE id=#{id}
+    </select>
+    <!--模糊查询-->
+    <select id="likeQuery" parameterType="String" resultType="provider">
+         SELECT * FROM smbms_provider
+         <where>
+            <if test="isdelete != 0">
+                isdelete=1
+            </if>
+             <if test="isdelete==0">
+                isdelete=0
+             </if>
+            <if test="proCode !=null">
+                AND proCode LIKE '%${proCode}%'
+            </if>
+             <if test="proName !=null">
+                AND proName LIKE '%${proName}%'
+             </if>
+         </where>
+            limit #{currentPageNo},#{pageSize}
+    </select>
+    <!--查询总页数-->
+    <select id="getProviderCount" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM smbms_provider
+        <where>
+            <if test="isdelete != 0">
+                isdelete=1
+            </if>
+            <if test="isdelete==0">
+                isdelete=0
+            </if>
+            <if test="proCode !=null">
+                AND proCode LIKE '%${proCode}%'
+            </if>
+            <if test="proName !=null">
+                AND proName LIKE '%${proName}%'
+            </if>
+        </where>
+    </select>
+    <!--根据id删除-->
+    <update id="delProviderById" parameterType="int">
+      UPDATE smbms_provider SET isdelete=0  WHERE id=#{id}
+    </update>
+    <!--添加-->
+    <insert id="addProvider" parameterType="provider" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO smbms_provider (
+        id,proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate,pid,isdelete)
+        VALUES (
+        NULL,NULL,#{proName},#{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate},#{pid},1)
+    </insert>
+    <!--修改数据-->
+    <update id="modifyProvider" parameterType="provider" >
+        UPDATE smbms_provider
+        <set>
+            proCode=#{proCode},
+            proName=#{proName},
+            proContact=#{proContact},
+            proPhone=#{proPhone},
+            proAddress=#{proAddress},
+            proFax=#{proFax},
+            proDesc=#{proDesc},
+            modifyDate=#{modifyDate},
+            modifyBy=#{modifyBy}
+        </set>
+        WHERE id=#{id}
+    </update>
+    <!--查询订单数量-->
+    <select id="getbillCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM  smbms_bill WHERE providerId=#{id}
+    </select>
+    <!--获取省份列表-->
+    <select id="getProvince" resultType="province">
+        SELECT * FROM smbms_province;
+    </select>
+    <!--获取省份大写字母-->
+    <select id="getPcodeById" parameterType="int" resultType="String">
+        SELECT pcode FROM smbms_province WHERE pid=#{pid};
+    </select>
+    <!--恢复供应商数据-->
+    <update id="recoveryProviderById" parameterType="int">
+        UPDATE smbms_provider SET isdelete=1  WHERE id=#{id}
+    </update>
+
+    <select id="getProCodeInput"  resultType="java.lang.String">
+        select proCode
+        from smbms_provider
+        WHERE proCode LIKE #{proCode}
+        LIMIT 0,5;
+    </select>
+
+    <select id="getProductNameInput"  resultType="java.lang.String">
+        select proName
+        from smbms_provider
+        WHERE proName LIKE #{proName}
+        LIMIT 0,5;
+    </select>
+
+</mapper>

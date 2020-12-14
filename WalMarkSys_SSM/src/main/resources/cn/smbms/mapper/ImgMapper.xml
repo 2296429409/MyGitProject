@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.mapper.ImgMapper">
+
+    <insert id="addImg" parameterType="Img">
+        insert into smbms_img
+        <trim prefix="(" suffixOverrides="," suffix=")">
+            <if test="userId!=null and userId!=''">
+                userId,
+            </if>
+            <if test="url!=null and url!=''">
+                url,
+            </if>
+        </trim>
+        <trim prefix=" values(" suffixOverrides="," suffix=")">
+            <if test="userId!=null and userId!=''">
+                #{userId},
+            </if>
+            <if test="url!=null and url!=''">
+                #{url}
+            </if>
+        </trim>
+    </insert>
+
+    <select id="getImgList" resultType="Img">
+        select * from smbms_img
+    </select>
+
+    <select id="getImgByUserId" resultType="Img">
+        select * from smbms_img where userId=#{userId}
+    </select>
+
+    <update id="updateImgByUserId" parameterType="Img">
+        update smbms_img
+        <set>
+            <if test="url!=null and url!=''">
+                url=#{url}
+            </if>
+        </set>
+        where userId=#{userId}
+    </update>
+
+</mapper>
